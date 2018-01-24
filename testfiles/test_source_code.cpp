@@ -1,9 +1,12 @@
+/*
+This pieces of code cannot work since I do not pass kernel arguments.
+*/
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
 #include <CL/cl.h>
 
-int main()
+int func3()
 {
 	cl_platform_id platform;
 	cl_device_id device;
@@ -36,9 +39,12 @@ int main()
 	program_buffer[program_size] = '\0';
 	fread(program_buffer, sizeof(char), program_size, program_handle);
 	fclose(program_handle);
-	printf("program_buffer is %s\n", program_buffer);
 	program = clCreateProgramWithSource(context, 1, (const char**)&program_buffer, &program_size, &err);
-
+	if (err < 0) {
+		perror("Couldn't build program\n");
+		exit(1);
+	}
+	free(program_buffer);
 	err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
 	if (err < 0) {
 		clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
@@ -49,20 +55,40 @@ int main()
 		free(program_log);
 		exit(1);
 	}
+
 	cl_uint num_kernel;
 	cl_kernel* kernels;
 	char kernel_name[20];
 	err = clCreateKernelsInProgram(program, 0, NULL, &num_kernel);
 	kernels = (cl_kernel*)malloc(num_kernel * sizeof(cl_kernel));
-	clCreateKernelsInProgram(program, num_kernel, kernels, NULL);
+	err = clCreateKernelsInProgram(program, num_kernel, kernels, NULL);
+	if (err < 0) {
+		perror("Create kernel error\n");
+		exit(1);
+	}
 	for (cl_uint i = 0; i < num_kernel; i++)
 	{
 		clGetKernelInfo(kernels[i], CL_KERNEL_FUNCTION_NAME, sizeof(kernel_name), kernel_name, NULL);
 		printf("kernel name is %s\n", kernel_name);
+	}
+	cl_command_queue queue;
+	queue = clCreateCommandQueue(context, device, 0, &err);
+	if (err < 0) {
+		perror("Couldn't create the command queue\n");
+		exit(1);
+	}
+	err = clEnqueueTask(queue, kernels[0], 0, NULL, NULL);
+	if (err < 0) {
+		perror("Couldn't enqueue kernel\n");
+		exit(1);
+	}
+	else {
+		printf("Successfully queued kernel\n");
 	}
 	for (cl_uint i = 0; i < num_kernel; i++)
 		clReleaseKernel(kernels[i]);
 	free(program_buffer);
 	clReleaseProgram(program);
 	clReleaseContext(context);
+	return 1;
 }
