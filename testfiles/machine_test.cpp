@@ -1,16 +1,6 @@
-/*
- *	Platform test code 
- */
-
-#if defined __APPLE__ || defined(MACOSX)
-#include <OpenCL/opencl.h>
-#else
-#include <CL/opencl.h>
-#endif
-
-#include <iostream>
-#include <vector>
-#include <CL\cl.h>
+#include <cstdlib>
+#include <cstdio>
+#include <CL/cl.h>
 
 int main()
 {
