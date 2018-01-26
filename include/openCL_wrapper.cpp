@@ -40,6 +40,12 @@ namespace OpenCL_wrapper {
 		// may have truble
 		return NULL;
 	}
+	std::vector<cl_device_id> choose_mult_device(cl_platform_id, std::string& device_type) {
+
+	}
+	cl_device_id choose_device(cl_platform_id platform, std::string& devs_name, int offset) {
+
+	}
 
 	bool CL_Base::init(const std::string& device_type, cl_command_queue_properties queue_prop = 0,
 		const cl_context_properties* additional_context_props = 0) {
