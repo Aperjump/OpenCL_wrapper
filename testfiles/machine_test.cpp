@@ -1,3 +1,7 @@
+/*
+This file will test your current platform and devices.
+These parameters are used for future computation.
+*/
 #include <cstdlib>
 #include <cstdio>
 #include <CL/cl.h>
